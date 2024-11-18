@@ -4,11 +4,14 @@ import sys
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow
 
+from py_maptrainer import Ui_MainWindow
 
-class MapTrainer(QMainWindow):
+
+class MapTrainer(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('example.ui', self)
+        # uic.loadUi('example.ui', self)
+        self.setupUi(self)
 
     def example(self):
         pass
