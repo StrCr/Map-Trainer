@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'ui_maptrainer.ui'
+# Form implementation generated from reading ui file 'ui_maptrainer2.ui'
 #
 # Created by: PyQt6 UI code generator 6.7.1
 #
@@ -24,6 +24,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.menu_name)
         self.menu_btn = QtWidgets.QPushButton(parent=self.centralwidget)
         self.menu_btn.setObjectName("menu_btn")
+        self.buttonGroup = QtWidgets.QButtonGroup(MainWindow)
+        self.buttonGroup.setObjectName("buttonGroup")
+        self.buttonGroup.addButton(self.menu_btn)
         self.horizontalLayout_2.addWidget(self.menu_btn)
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
         self.stackedWidget = QtWidgets.QStackedWidget(parent=self.centralwidget)
@@ -50,18 +53,22 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.game_name_label)
         self.start_btn = QtWidgets.QPushButton(parent=self.menu_page)
         self.start_btn.setObjectName("start_btn")
+        self.buttonGroup.addButton(self.start_btn)
         self.verticalLayout.addWidget(self.start_btn)
         self.verticalLayout_3.addLayout(self.verticalLayout)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.records_btn = QtWidgets.QPushButton(parent=self.menu_page)
         self.records_btn.setObjectName("records_btn")
+        self.buttonGroup.addButton(self.records_btn)
         self.horizontalLayout.addWidget(self.records_btn)
         self.settings_btn = QtWidgets.QPushButton(parent=self.menu_page)
         self.settings_btn.setObjectName("settings_btn")
+        self.buttonGroup.addButton(self.settings_btn)
         self.horizontalLayout.addWidget(self.settings_btn)
         self.achievements_btn = QtWidgets.QPushButton(parent=self.menu_page)
         self.achievements_btn.setObjectName("achievements_btn")
+        self.buttonGroup.addButton(self.achievements_btn)
         self.horizontalLayout.addWidget(self.achievements_btn)
         self.verticalLayout_3.addLayout(self.horizontalLayout)
         self.stackedWidget.addWidget(self.menu_page)
@@ -73,6 +80,7 @@ class Ui_MainWindow(object):
         self.settings_apply_btn = QtWidgets.QPushButton(parent=self.settings_page)
         self.settings_apply_btn.setGeometry(QtCore.QRect(390, 400, 93, 28))
         self.settings_apply_btn.setObjectName("settings_apply_btn")
+        self.buttonGroup.addButton(self.settings_apply_btn)
         self.stackedWidget.addWidget(self.settings_page)
         self.achievements_page = QtWidgets.QWidget()
         self.achievements_page.setObjectName("achievements_page")
@@ -147,6 +155,7 @@ class Ui_MainWindow(object):
         self.game_btn = QtWidgets.QPushButton(parent=self.start_settings_page)
         self.game_btn.setGeometry(QtCore.QRect(270, 350, 93, 28))
         self.game_btn.setObjectName("game_btn")
+        self.buttonGroup.addButton(self.game_btn)
         self.stackedWidget.addWidget(self.start_settings_page)
         self.game_page = QtWidgets.QWidget()
         self.game_page.setObjectName("game_page")
@@ -159,6 +168,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.addWidget(self.game_timer)
         self.result_btn = QtWidgets.QPushButton(parent=self.game_page)
         self.result_btn.setObjectName("result_btn")
+        self.buttonGroup.addButton(self.result_btn)
         self.horizontalLayout_12.addWidget(self.result_btn)
         self.verticalLayout_7.addLayout(self.horizontalLayout_12)
         self.game_image = QtWidgets.QLabel(parent=self.game_page)
@@ -218,7 +228,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

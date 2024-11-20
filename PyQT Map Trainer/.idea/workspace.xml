@@ -34,13 +34,23 @@
     "Python.Example.executor": "Run",
     "Python.MapTrainer.executor": "Run",
     "Python.Test.executor": "Run",
+    "Python.test.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/Тимофей/Desktop/Учеба/Прога/PyQt/QT 5",
+    "last_opened_file_path": "C:/Users/Тимофей/Desktop/GitHub/PyQT/PyQT Map Trainer",
     "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Тимофей\Desktop\GitHub\PyQT\PyQT Map Trainer" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Тимофей\Desktop\GitHub\PyQT\PyQT Map Trainer" />
+      <recent name="C:\Users\Тимофей\Desktop\GitHub\PyQT\PyQT Map Trainer\" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
