@@ -44,3 +44,24 @@ def start(self):
             self.statusBar().showMessage("По этому запросу ничего не найдено")
     except Exception:
         self.statusBar().showMessage("По этому запросу ничего не найдено")"""
+
+
+def __init__(self):
+    super().__init__()
+    f = io.StringIO(interface)
+    uic.loadUi(f, self)
+    self.filename = 'orig.jpg'
+    self.alpha.valueChanged.connect(self.change)
+    self.orig_image = QImage(self.filename)
+    self.curr_image = self.orig_image.copy()
+    self.pixmap = QPixmap.fromImage(self.curr_image)
+    self.label.setPixmap(self.pixmap)
+
+
+def change(self):
+    a = self.alpha.value()
+    img = Image.open('orig.jpg')
+    img.putalpha(a)
+    img.save('new.png')
+    self.pixmap = QPixmap('new.png')
+    self.label.setPixmap(self.pixmap)
