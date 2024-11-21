@@ -5,10 +5,12 @@ import random
 
 from PyQt6 import uic
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtWidgets import QApplication, QMainWindow, QCheckBox, QVBoxLayout
 from PyQt6 import QtCore, QtWidgets
 
 from py_maptrainer import Ui_MainWindow
+
+questions_dict = {1: "страны", 2: "столицы", 3: "регион", 4: "океан"}
 
 
 class MapTrainer(QMainWindow, Ui_MainWindow):
@@ -29,7 +31,6 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
 
         # игровая зона
         self.con = sqlite3.connect("map.sqlite")
-        self.filename = ''
         self.total_points = []
         self.answer_points = []
 
@@ -39,43 +40,48 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.game_next_btn.clicked.connect(self.next_game)
         self.result_btn.clicked.connect(self.end_game)
 
-        # зона разработки
+        # зона разработк
+        self.layout = QVBoxLayout()
+        self.scrollArea.setLayout(self.layout)
 
     def start_game(self):
         self.stackedWidget.setCurrentWidget(self.game_page)
 
     def answer_game(self):
-        self.answer_points = []
+        # доработать
+        """self.answer_points = []
         if self.checkBox_2.isChecked():
-            self.answer_points.append(100)
-        if self.checkBox_5.isChecked():
-            self.answer_points.append(100)
-        if self.checkBox_6.isChecked():
-            self.answer_points.append(100)
+            self.answer_points.append(100)"""
 
     def next_game(self):
-        # self.filename = 'newfoundland.jpg'
-        # self.pixmap = QPixmap(self.filename)
-        # self.game_image.setPixmap(self.pixmap)
-        # self.game_image.setScaledContents(True)
         cur = self.con.cursor()
-        query = "SELECT maps_name FROM maps"
-        res = cur.execute(query).fetchall()
-        maps = [i[0] for i in res]
-        # self.filename = random.choice(maps)
-        self.pixmap = QPixmap(random.choice(maps))
-        self.game_image.setPixmap(self.pixmap)
+        random_id = random.randint(1, 4)
+        print(random_id)
+        cur.execute('SELECT maps_name FROM maps WHERE id=?', (random_id,))
+        image_name = cur.fetchone()[0]
+        print(image_name)
+        pixmap = QPixmap(image_name)
+        self.game_image.setPixmap(pixmap)
         self.game_image.setScaledContents(True)
 
-        self.game_question_label.setText("Какой географический обьект представлен на карте?")
-        self.checkBox_1.setText("неверно")
-        self.checkBox_2.setText("верно")
-        self.checkBox_3.setText("неверно")
-        self.checkBox_4.setText("неверно")
-        self.checkBox_5.setText("верно")
-        self.checkBox_6.setText("верно")
+        cur.execute('SELECT false_info_id FROM info WHERE id=?', (random_id,))
+        question_ids = cur.fetchone()[0]
+        if len(str(question_ids)) > 1:
+            random_question_id = random.choice(question_ids.split(', '))
+        else:
+            random_question_id = question_ids
+        question_text = questions_dict.get(int(random_question_id))
+        self.game_question_label.setText(question_text)
+
+        for i in reversed(range(self.layout.count())):
+            self.layout.itemAt(i).widget().setParent(None)
+
+        for i in range(2):
+            new_check_box = QCheckBox("New Checkbox")
+            self.layout.addWidget(new_check_box)
 
     def end_game(self):
+        # доработать
         self.stackedWidget.setCurrentWidget(self.result_page)
         self.total_points.append(sum(self.answer_points))
         print(self.total_points)
