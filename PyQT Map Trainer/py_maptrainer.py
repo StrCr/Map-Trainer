@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'ui_maptrainer_3.ui'
+# Form implementation generated from reading ui file 'ui_maptrainer_4.ui'
 #
 # Created by: PyQt6 UI code generator 6.7.1
 #
@@ -193,24 +193,6 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
-        self.checkBox_1 = QtWidgets.QCheckBox(parent=self.scrollAreaWidgetContents)
-        self.checkBox_1.setObjectName("checkBox_1")
-        self.verticalLayout_6.addWidget(self.checkBox_1)
-        self.checkBox_2 = QtWidgets.QCheckBox(parent=self.scrollAreaWidgetContents)
-        self.checkBox_2.setObjectName("checkBox_2")
-        self.verticalLayout_6.addWidget(self.checkBox_2)
-        self.checkBox_3 = QtWidgets.QCheckBox(parent=self.scrollAreaWidgetContents)
-        self.checkBox_3.setObjectName("checkBox_3")
-        self.verticalLayout_6.addWidget(self.checkBox_3)
-        self.checkBox_4 = QtWidgets.QCheckBox(parent=self.scrollAreaWidgetContents)
-        self.checkBox_4.setObjectName("checkBox_4")
-        self.verticalLayout_6.addWidget(self.checkBox_4)
-        self.checkBox_5 = QtWidgets.QCheckBox(parent=self.scrollAreaWidgetContents)
-        self.checkBox_5.setObjectName("checkBox_5")
-        self.verticalLayout_6.addWidget(self.checkBox_5)
-        self.checkBox_6 = QtWidgets.QCheckBox(parent=self.scrollAreaWidgetContents)
-        self.checkBox_6.setObjectName("checkBox_6")
-        self.verticalLayout_6.addWidget(self.checkBox_6)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.horizontalLayout_9.addWidget(self.scrollArea)
         self.verticalLayout_8 = QtWidgets.QVBoxLayout()
@@ -262,12 +244,6 @@ class Ui_MainWindow(object):
         self.game_btn.setText(_translate("MainWindow", "Начать"))
         self.result_btn.setText(_translate("MainWindow", "Завершить"))
         self.game_question_label.setText(_translate("MainWindow", "Вопрос"))
-        self.checkBox_1.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_2.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_3.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_4.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_5.setText(_translate("MainWindow", "CheckBox"))
-        self.checkBox_6.setText(_translate("MainWindow", "CheckBox"))
         self.game_answer_btn.setText(_translate("MainWindow", "Ответить"))
         self.game_next_btn.setText(_translate("MainWindow", "Дальше"))
         self.label_14.setText(_translate("MainWindow", "В РАЗРАБОТКЕ"))
