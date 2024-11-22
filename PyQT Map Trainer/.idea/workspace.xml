@@ -38,6 +38,8 @@
     "Python.test 3.executor": "Run",
     "Python.test 4.executor": "Run",
     "Python.test 5.executor": "Run",
+    "Python.test 6.5.executor": "Run",
+    "Python.test 6.executor": "Run",
     "Python.test.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -52,6 +54,8 @@
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Тимофей\Desktop\GitHub\PyQT\PyQT Map Trainer" />
+      <recent name="C:\Users\Тимофей\Desktop\GitHub\PyQT\PyQT Map Trainer\maps" />
+      <recent name="C:\Users\Тимофей\Desktop\GitHub\PyQT\PyQT Map Trainer\ui_version" />
       <recent name="C:\Users\Тимофей\Desktop\GitHub\PyQT\PyQT Map Trainer\" />
     </key>
   </component>
