@@ -4,8 +4,8 @@ import sqlite3
 import random
 
 from PyQt6 import uic
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QApplication, QMainWindow, QCheckBox, QVBoxLayout
+from PyQt6.QtGui import QPixmap, QImage
+from PyQt6.QtWidgets import QApplication, QMainWindow, QCheckBox, QVBoxLayout, QScrollArea, QStackedWidget
 from PyQt6 import QtCore, QtWidgets
 
 from py_maptrainer import Ui_MainWindow
@@ -19,7 +19,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         # uic.loadUi('ui_maptrainer2.ui', self)
         self.setupUi(self)
 
-        # кнопки для переключения страниц
+        # кнопки для перелистывания страниц
         self.stackedWidget.setCurrentWidget(self.menu_page)
 
         self.menu_btn.clicked.connect(self.show_page)
@@ -31,8 +31,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
 
         # игровая зона
         self.con = sqlite3.connect("map.sqlite")
-        self.total_points = []
-        self.answer_points = []
+        self.cur = self.con.cursor()
 
         self.game_btn.clicked.connect(self.start_game)
         self.game_btn.clicked.connect(self.next_game)
@@ -41,6 +40,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.result_btn.clicked.connect(self.end_game)
 
         # зона разработк
+        self.checkboxes = []
         self.layout = QVBoxLayout()
         self.scrollArea.setLayout(self.layout)
 
@@ -48,37 +48,68 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(self.game_page)
 
     def answer_game(self):
-        # доработать
-        """self.answer_points = []
-        if self.checkBox_2.isChecked():
-            self.answer_points.append(100)"""
+        correct = 0
+        incorrect = 0
+        for checkbox in self.checkboxes:
+            if checkbox.text() in self.correct_answer and checkbox.isChecked():
+                correct += 1
+            if checkbox.text() in self.false_answer and checkbox.isChecked():
+                incorrect += 1
+        print(correct, incorrect)
 
     def next_game(self):
-        cur = self.con.cursor()
         random_id = random.randint(1, 4)
-        print(random_id)
-        cur.execute('SELECT maps_name FROM maps WHERE id=?', (random_id,))
-        image_name = cur.fetchone()[0]
-        print(image_name)
-        pixmap = QPixmap(image_name)
-        self.game_image.setPixmap(pixmap)
-        self.game_image.setScaledContents(True)
 
-        cur.execute('SELECT false_info_id FROM info WHERE id=?', (random_id,))
-        question_ids = cur.fetchone()[0]
+        # генерация изображения
+        self.cur.execute('SELECT maps_name FROM maps WHERE id=?', (random_id,))
+        image_name = self.cur.fetchone()[0]
+        map_game = QImage(image_name)
+        self.game_image.setPixmap(QPixmap.fromImage(map_game))
+
+        # генерация вопроса
+        self.cur.execute('SELECT false_info_id FROM info WHERE id=?', (random_id,))
+        question_ids = self.cur.fetchone()[0]
         if len(str(question_ids)) > 1:
             random_question_id = random.choice(question_ids.split(', '))
         else:
             random_question_id = question_ids
         question_text = questions_dict.get(int(random_question_id))
-        self.game_question_label.setText(question_text)
+        self.game_question_label.setText(f"Какой(-ие) {question_text} представлен(-ы) на карте?")
+
+        # генерация вариантов ответа
+        all_answers = []
+        columns = ['countries', 'capitals', 'regions', 'seas']
+        column = columns[int(random_question_id) - 1]
+        self.cur.execute(f"SELECT {column} FROM info WHERE id = {random_id}")
+        self.correct_answer = self.cur.fetchone()[0].split(', ')
+        if len(self.correct_answer) > 1:
+            self.correct_answer = random.sample(self.correct_answer, 2)
+        all_answers += self.correct_answer
+
+        self.cur.execute(f"SELECT {column} FROM false_info")
+        false_info = self.cur.fetchall()
+        false_info = [i[0] for i in false_info]
+        if len(self.correct_answer) > 1:
+            self.false_answer = random.sample(false_info, 4)
+        else:
+            self.false_answer = random.sample(false_info, 3)
+        all_answers += self.false_answer
+        random.shuffle(all_answers)
 
         for i in reversed(range(self.layout.count())):
             self.layout.itemAt(i).widget().setParent(None)
 
-        for i in range(2):
-            new_check_box = QCheckBox("New Checkbox")
-            self.layout.addWidget(new_check_box)
+        for answer in all_answers:
+            checkbox = QCheckBox(answer)
+            self.layout.addWidget(checkbox)
+            self.checkboxes.append(checkbox)
+
+        """      
+        self.cur.execute(f"SELECT * FROM false_info WHERE {self.getColumnName()} "
+                         f"= (SELECT {self.getColumnName()} FROM info WHERE id = {self.current_id})")
+        row = self.cur.fetchone()self.cur.execute(f"SELECT * FROM false_info WHERE {self.getColumnName()} "
+                         f"= (SELECT {self.getColumnName()} FROM info WHERE id = {self.current_id})")
+        row = self.cur.fetchone()"""
 
     def end_game(self):
         # доработать
@@ -87,8 +118,8 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         print(self.total_points)
 
     def show_page(self):
+        # перелистывание страниц виджетом QStackedWidget
         sender = self.sender()
-        # Попытаться сократить еще больше с использованием словаря
         if sender == self.menu_btn:
             self.stackedWidget.setCurrentWidget(self.menu_page)
         if sender == self.start_btn:
