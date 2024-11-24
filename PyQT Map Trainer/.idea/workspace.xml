@@ -31,9 +31,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.1.87.5.executor": "Run",
     "Python.Example.executor": "Run",
     "Python.MapTrainer.executor": "Run",
     "Python.Test.executor": "Run",
+    "Python.test 1.5.executor": "Run",
+    "Python.test 1.75.executor": "Run",
+    "Python.test 1.executor": "Run",
     "Python.test 2.executor": "Run",
     "Python.test 3.executor": "Run",
     "Python.test 4.executor": "Run",
@@ -41,6 +45,7 @@
     "Python.test 6.5.executor": "Run",
     "Python.test 6.executor": "Run",
     "Python.test.executor": "Run",
+    "Python.test3.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
