@@ -172,8 +172,9 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(self.result_page)
         self.result_name_label.setText(f"Пользователем {self.name}")
         self.result_points_label.setText(f"набрано {self.points} очков!")
-        self.cur.execute('''INSERT INTO records (name, points) VALUES (?, ?)''', (self.name, self.points))
-        self.con.commit()
+        if self.points != 0:
+            self.cur.execute('''INSERT INTO records (name, points) VALUES (?, ?)''', (self.name, self.points))
+            self.con.commit()
         self.points = 0
         self.game_has_started = False
 
