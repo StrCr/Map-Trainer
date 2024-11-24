@@ -118,7 +118,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         """Генерация изображения"""
         self.cur.execute(f'SELECT maps_name FROM maps WHERE id = {random_id};')
         image_name = self.cur.fetchone()[0]
-        map_game = QImage(image_name)
+        map_game = QImage(f'maps/{image_name}')
         self.game_image.setPixmap(QPixmap.fromImage(map_game))
 
         """Генерация вопроса"""
