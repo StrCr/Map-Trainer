@@ -216,7 +216,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 694, 148))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 98, 148))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
@@ -301,7 +301,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Map Trainer"))
         self.menu_name.setText(_translate("MainWindow", "Имя пользователя"))
         self.menu_btn.setText(_translate("MainWindow", "Меню"))
         self.records_label.setText(_translate("MainWindow", "Таблица рекордов:"))
