@@ -15,12 +15,18 @@ questions_dict = {1: "Какая(-ие) страна(-ы) изображена(-
                   4: "Какое море изображено на карте?"}
 COLUMNS = ['countries', 'capitals', 'regions', 'seas']
 
+# ToDo: использовать rows[0][1] для данных из таблицы
+# ToDo: улучшить код
+
 
 class MapTrainer(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         # uic.loadUi('ui_maptrainer5.ui', self)
         self.setupUi(self)
+
+        self.layout = QVBoxLayout()
+        self.scrollArea.setLayout(self.layout)
 
         """Перелистывание страниц виджетом QStackedWidget"""
         self.stackedWidget.setCurrentWidget(self.menu_page)
@@ -51,9 +57,6 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.timer.timeout.connect(self.update_timer)
         self.time_left = 150
         self.time_total = 0
-
-        self.layout = QVBoxLayout()
-        self.scrollArea.setLayout(self.layout)
 
         self.game_btn.clicked.connect(self.start_countdown)
         self.game_btn.clicked.connect(self.next_game)
@@ -118,6 +121,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         """Генерация изображения"""
         self.cur.execute(f'SELECT maps_name FROM maps WHERE id = {random_id};')
         image_name = self.cur.fetchone()[0]
+        print(image_name)
         map_game = QImage(f'maps/{image_name}')
         self.game_image.setPixmap(QPixmap.fromImage(map_game))
 
