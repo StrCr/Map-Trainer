@@ -7,9 +7,10 @@ from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QPixmap, QImage
 from PyQt6.QtWidgets import QApplication, QMainWindow, QCheckBox, QVBoxLayout, QRadioButton, QMessageBox
 
+import json_utils
 from py_maptrainer import Ui_MainWindow
 
-questions_dict = {1: "Какая(-ие) страна(-ы) изображена(-ы) на карте?",
+QUESTIONS_DICT = {1: "Какая(-ие) страна(-ы) изображена(-ы) на карте?",
                   2: "Какая(-ие) столица(-ы) изображена(-ы) на карте?",
                   3: "Какой регион изображен на карте?",
                   4: "Какое море изображено на карте?"}
@@ -25,7 +26,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.layout = QVBoxLayout()
         self.scrollArea.setLayout(self.layout)
 
-        """Перелистывание страниц виджетом QStackedWidget"""
+        # Перелистывание страниц виджетом QStackedWidget
         self.stackedWidget.setCurrentWidget(self.menu_page)
 
         self.menu_btn.clicked.connect(self.show_page)
@@ -33,7 +34,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.records_btn.clicked.connect(self.show_page)
         self.game_btn.clicked.connect(self.show_page)
 
-        """Игра"""
+        # Основная игра
         self.con = sqlite3.connect("map.sqlite")
         self.cur = self.con.cursor()
         self.cur.execute('SELECT COUNT(*) AS id FROM maps;')
@@ -44,6 +45,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.false_answer = None
         self.answer_is_difficult = None
         self.game_has_started = False
+        self.answer_was_given = False
         self.points = 0
         self.total_points = 0
         self.checkboxes = []
@@ -55,19 +57,14 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.time_left = 150
         self.time_total = 0
 
-        self.game_btn.clicked.connect(self.start_countdown)
         self.game_btn.clicked.connect(self.next_game)
         self.game_answer_btn.clicked.connect(self.answer_game)
         self.game_next_btn.clicked.connect(self.next_game)
         self.result_btn.clicked.connect(self.end_game)
 
-    def start_countdown(self):
-        self.timer.start()
-
     def update_timer(self):
         self.time_left -= 1
-        minutes = self.time_left // 60
-        seconds = self.time_left % 60
+        minutes, seconds = divmod(self.time_left, 60)
         self.game_timer.setText(f"Время: {minutes:02}:{seconds:02}")
 
         if self.time_left <= 0:
@@ -75,36 +72,42 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
             self.end_game()
 
     def answer_game(self):
-        correct_answers = 0
-        incorrect_answers = 0
-        self.time_total = 0
-        """Подсчет очков для сложного вопроса"""
-        if self.answer_is_difficult:
-            for checkbox in self.checkboxes:
-                if checkbox.text() in self.correct_answer and checkbox.isChecked():
-                    correct_answers += 1
-                if checkbox.text() in self.false_answer and checkbox.isChecked():
-                    incorrect_answers += 1
-            if correct_answers > incorrect_answers:
-                self.time_total = (correct_answers - incorrect_answers) * 15
-            if correct_answers < incorrect_answers:
-                self.time_total = (incorrect_answers - correct_answers) * -10
-            else:
-                self.time_total = 5
-        """Подсчет очков для простого вопроса"""
-        if not self.answer_is_difficult:
-            for radio_btn in self.radio_btns:
-                if radio_btn.text() in self.correct_answer and radio_btn.isChecked():
-                    correct_answers = 1
-            if correct_answers == 1:
-                self.time_total = 15
-            else:
-                self.time_total = -15
+        if not self.answer_was_given:
+            correct_answers = 0
+            incorrect_answers = 0
+            self.time_total = 0
+            # Подсчет очков для сложного вопроса
+            if self.answer_is_difficult:
+                for checkbox in self.checkboxes:
+                    if checkbox.text() in self.correct_answer and checkbox.isChecked():
+                        correct_answers += 1
+                    if checkbox.text() in self.false_answer and checkbox.isChecked():
+                        incorrect_answers += 1
+                if correct_answers > incorrect_answers:
+                    self.time_total = (correct_answers - incorrect_answers) * 15
+                if correct_answers < incorrect_answers:
+                    self.time_total = (incorrect_answers - correct_answers) * -10
+                else:
+                    self.time_total = 5
+            # Подсчет очков для простого вопроса
+            if not self.answer_is_difficult:
+                for radio_btn in self.radio_btns:
+                    if radio_btn.text() in self.correct_answer and radio_btn.isChecked():
+                        correct_answers = 1
+                if correct_answers == 1:
+                    self.time_total = 15
+                else:
+                    self.time_total = -15
 
-        self.points += correct_answers * 100
+            self.points += correct_answers * 100
+            self.answer_was_given = True
+        else:
+            return
 
     def next_game(self):
+        self.timer.start()
         self.game_has_started = True
+        self.answer_was_given = False
         self.name = self.start_name.text()
         self.menu_name.setText(self.name)
 
@@ -115,23 +118,22 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.time_total = 0
         random_id = random.randint(1, self.maps_id)
 
-        """Генерация изображения"""
+        # Генерация изображения
         self.cur.execute(f'SELECT maps_name FROM maps WHERE id = {random_id};')
         image_name = self.cur.fetchone()[0]
-        print(image_name)
         map_game = QImage(f'maps/{image_name}')
         self.game_image.setPixmap(QPixmap.fromImage(map_game))
 
-        """Генерация вопроса"""
+        # Генерация вопроса
         self.cur.execute(f'SELECT false_info_id FROM info WHERE id = {random_id};')
         question_ids = self.cur.fetchone()[0]
         if len(str(question_ids)) > 1:
             random_question_id = random.choice(question_ids.split(', '))
         else:
             random_question_id = question_ids
-        self.game_question_label.setText(questions_dict.get(int(random_question_id)))
+        self.game_question_label.setText(QUESTIONS_DICT.get(int(random_question_id)))
 
-        """Генерация вариантов ответа"""
+        # Генерация вариантов ответа
         all_answers = []
         column = COLUMNS[int(random_question_id) - 1]
 
@@ -173,9 +175,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(self.result_page)
         self.result_name_label.setText(f"Пользователем {self.name}")
         self.result_points_label.setText(f"набрано {self.points} очков!")
-        if self.points != 0:
-            self.cur.execute('''INSERT INTO records (name, points) VALUES (?, ?)''', (self.name, self.points))
-            self.con.commit()
+        json_utils.add_score(self.name, self.points)
         self.points = 0
         self.game_has_started = False
 
@@ -196,14 +196,17 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
             self.stackedWidget.setCurrentWidget(self.start_settings_page)
         if sender == self.records_btn:
             self.records_list.clear()
-            self.cur.execute('''SELECT name, points FROM records ORDER BY points DESC''')
-            records = self.cur.fetchall()
-            for record in records:
-                record_name, record_points = record
+            scores = json_utils.load_json("data/score.json")
+            scores = sorted(scores, key=lambda x: x["score"], reverse=True)
+
+            for record in scores:
+                record_name = record.get("name")
+                record_points = record.get("score")
+
                 if record_name:
-                    self.records_list.addItem(f'{record_name}.....{record_points}{'.' * 500}')
+                    self.records_list.addItem(f'{record_name}.....{record_points}{"." * 500}')
                 else:
-                    self.records_list.addItem(f'Player.....{record_points}{'.' * 500}')
+                    self.records_list.addItem(f'Player.....{record_points}{"." * 500}')
             self.stackedWidget.setCurrentWidget(self.records_page)
         if sender == self.game_btn:
             self.stackedWidget.setCurrentWidget(self.game_page)
