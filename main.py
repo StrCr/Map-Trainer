@@ -5,10 +5,10 @@ import random
 
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtCore import QTimer
-from PyQt6.QtGui import QPixmap, QImage
+from PyQt6.QtGui import QPixmap, QImage, QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QCheckBox, QVBoxLayout, QRadioButton, QMessageBox
 
-import json_utils
+import utils
 from py_maptrainer import Ui_MainWindow
 
 QUESTIONS_DICT = {1: "Какая(-ие) страна(-ы) изображена(-ы) на карте?",
@@ -22,8 +22,19 @@ TIME_LIMIT = 150
 class MapTrainer(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        # uic.loadUi('ui_maptrainer5.ui', self)
         self.setupUi(self)
+        self.setWindowIcon(QIcon(utils.resource_path("data/map_icon.ico")))
+
+        self.name = ""
+        self.correct_answer = []
+        self.false_answer = []
+        self.answer_is_difficult = None
+        self.game_has_started = False
+        self.answer_was_given = False
+        self.points = 0
+        self.total_points = 0
+        self.checkboxes = []
+        self.radio_btns = []
 
         self.layout = QVBoxLayout()
         self.scrollArea.setLayout(self.layout)
@@ -36,28 +47,15 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.records_btn.clicked.connect(self.show_page)
         self.game_btn.clicked.connect(self.show_page)
 
-        if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath(".")
+        # Пути к файлам
+        self.db_path = utils.resource_path("data/map.sqlite")
+        self.json_path = utils.get_user_data_path("score.json")
+        self.maps_dir = utils.resource_path("maps")
 
-        db_path = os.path.join(base_path, "data", "map.sqlite")
-
-        self.con = sqlite3.connect(db_path)
+        self.con = sqlite3.connect(self.db_path)
         self.cur = self.con.cursor()
         self.cur.execute('SELECT COUNT(*) AS id FROM maps;')
         self.maps_id = self.cur.fetchone()[0]
-
-        self.name = ""
-        self.correct_answer = []
-        self.false_answer = []
-        self.answer_is_difficult = None
-        self.game_has_started = False
-        self.answer_was_given = False
-        self.points = 0
-        self.total_points = 0
-        self.checkboxes = []
-        self.radio_btns = []
 
         # Таймер
         self.timer = QTimer(self)
@@ -136,7 +134,8 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         # Генерация изображения
         self.cur.execute(f'SELECT maps_name FROM maps WHERE id = {random_id};')
         image_name = self.cur.fetchone()[0]
-        map_game = QImage(f'maps/{image_name}')
+        image_path = utils.resource_path(os.path.join("maps", image_name))
+        map_game = QImage(image_path)
         self.game_image.setPixmap(QPixmap.fromImage(map_game))
 
         # Генерация вопроса
@@ -191,7 +190,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.stackedWidget.setCurrentWidget(self.result_page)
         self.result_name_label.setText(f"Пользователем {self.name}")
         self.result_points_label.setText(f"набрано {self.points} очков!")
-        json_utils.add_score(self.name, self.points)
+        utils.add_score(self.json_path, self.name, self.points)
         self.points = 0
         self.game_has_started = False
 
@@ -212,7 +211,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
             self.stackedWidget.setCurrentWidget(self.start_settings_page)
         if sender == self.records_btn:
             self.records_list.clear()
-            scores = json_utils.load_json("data/score.json")
+            scores = utils.load_json(self.json_path)
             scores = sorted(scores, key=lambda x: x["score"], reverse=True)
 
             for record in scores:

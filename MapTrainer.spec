@@ -2,10 +2,13 @@
 
 
 a = Analysis(
-    ['main.py', 'json_utils.py', 'py_maptrainer.py'],
+    ['main.py', 'utils.py', 'py_maptrainer.py'],
     pathex=[],
     binaries=[],
-    datas=[('data/map.sqlite', 'data'), ('data/score.json', 'data'), ('maps', 'maps')],
+    datas=[("data/map_icon.ico", "data"),
+           ("data/map.sqlite", "data"),
+           ("data/score.json", "data"),
+           ("maps", "maps")],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
