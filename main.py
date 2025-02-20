@@ -1,3 +1,4 @@
+import os
 import sys
 import sqlite3
 import random
@@ -15,6 +16,7 @@ QUESTIONS_DICT = {1: "Какая(-ие) страна(-ы) изображена(-
                   3: "Какой регион изображен на карте?",
                   4: "Какое море изображено на карте?"}
 COLUMNS = ['countries', 'capitals', 'regions', 'seas']
+TIME_LIMIT = 150
 
 
 class MapTrainer(QMainWindow, Ui_MainWindow):
@@ -34,15 +36,21 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.records_btn.clicked.connect(self.show_page)
         self.game_btn.clicked.connect(self.show_page)
 
-        # Основная игра
-        self.con = sqlite3.connect("map.sqlite")
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath(".")
+
+        db_path = os.path.join(base_path, "data", "map.sqlite")
+
+        self.con = sqlite3.connect(db_path)
         self.cur = self.con.cursor()
         self.cur.execute('SELECT COUNT(*) AS id FROM maps;')
         self.maps_id = self.cur.fetchone()[0]
 
-        self.name = 0
-        self.correct_answer = None
-        self.false_answer = None
+        self.name = ""
+        self.correct_answer = []
+        self.false_answer = []
         self.answer_is_difficult = None
         self.game_has_started = False
         self.answer_was_given = False
@@ -51,18 +59,23 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.checkboxes = []
         self.radio_btns = []
 
+        # Таймер
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.update_timer)
-        self.time_left = 150
+        self.time_left = TIME_LIMIT
         self.time_total = 0
 
-        self.game_btn.clicked.connect(self.next_game)
+        # Логика кнопок
+        self.game_btn.clicked.connect(self.start_new_game)
         self.game_answer_btn.clicked.connect(self.answer_game)
-        self.game_next_btn.clicked.connect(self.next_game)
+        self.game_next_btn.clicked.connect(self.start_new_game)
         self.result_btn.clicked.connect(self.end_game)
 
+        self.update_timer()
+
     def update_timer(self):
+        """Обновляет таймер и отображает оставшееся время."""
         self.time_left -= 1
         minutes, seconds = divmod(self.time_left, 60)
         self.game_timer.setText(f"Время: {minutes:02}:{seconds:02}")
@@ -72,39 +85,41 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
             self.end_game()
 
     def answer_game(self):
+        """Вычисляет очки и оставшееся время в зависимости от типа вопроса и выбранных ответов."""
         if not self.answer_was_given:
             correct_answers = 0
             incorrect_answers = 0
-            self.time_total = 0
-            # Подсчет очков для сложного вопроса
+
             if self.answer_is_difficult:
                 for checkbox in self.checkboxes:
                     if checkbox.text() in self.correct_answer and checkbox.isChecked():
                         correct_answers += 1
                     if checkbox.text() in self.false_answer and checkbox.isChecked():
                         incorrect_answers += 1
+
                 if correct_answers > incorrect_answers:
                     self.time_total = (correct_answers - incorrect_answers) * 15
-                if correct_answers < incorrect_answers:
+                elif correct_answers < incorrect_answers:
                     self.time_total = (incorrect_answers - correct_answers) * -10
                 else:
                     self.time_total = 5
-            # Подсчет очков для простого вопроса
-            if not self.answer_is_difficult:
+            else:
                 for radio_btn in self.radio_btns:
                     if radio_btn.text() in self.correct_answer and radio_btn.isChecked():
                         correct_answers = 1
+                        break
+
                 if correct_answers == 1:
                     self.time_total = 15
                 else:
                     self.time_total = -15
 
             self.points += correct_answers * 100
+            self.total_points += self.points
             self.answer_was_given = True
-        else:
-            return
 
-    def next_game(self):
+    def start_new_game(self):
+        """Основная игровая логика. Генерация изображения, вопроса и ответов."""
         self.timer.start()
         self.game_has_started = True
         self.answer_was_given = False
@@ -170,6 +185,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
                 self.radio_btns.append(radio_btn)
 
     def end_game(self):
+        """Завершает игру."""
         self.timer.stop()
         self.time_left = 150
         self.stackedWidget.setCurrentWidget(self.result_page)
@@ -180,7 +196,7 @@ class MapTrainer(QMainWindow, Ui_MainWindow):
         self.game_has_started = False
 
     def show_page(self):
-        """Перелистывание страниц виджетом QStackedWidget"""
+        """Перелистывание страниц виджетом QStackedWidget."""
         sender = self.sender()
         if sender == self.menu_btn:
             if self.game_has_started:
